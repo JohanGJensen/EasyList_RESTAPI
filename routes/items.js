@@ -19,6 +19,7 @@ router.post('/create', (req, res) => {
         _id: req.body.id,
         name: req.body.name,
         description: req.body.description,
+        complete: req.body.complete,
         user: req.body.user
     };
 
