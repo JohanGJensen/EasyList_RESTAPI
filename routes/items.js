@@ -16,7 +16,7 @@ router.get('/all', (req, res) => {
 router.post('/create', (req, res) => {
     const collection = db.client.db(db.dbName).collection(db.collectionName);
     const newItem = {
-        _id: req.body.id.toString(),
+        _id: req.body._id.toString(),
         name: req.body.name,
         description: req.body.description,
         complete: req.body.complete,
