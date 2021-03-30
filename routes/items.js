@@ -54,10 +54,10 @@ router.post('/update/:id', (req, res) => {
     res.json({'msg': 'item updated'});
 });
 
-router.get('/match', (req, res) => {
+router.get('/match/:user', (req, res) => {
     const collection = db.client.db(db.dbName).collection(db.collectionName);
-    const cursor = collection.find({'user': req.body.user});
-    
+    const cursor = collection.find({'user': req.params.user});
+
     cursor.toArray((err, result) => {
         if (err) throw err;
 
