@@ -6,8 +6,11 @@ const client = new MongoClient(secrets.uri, { useNewUrlParser: true, useUnifiedT
 const dbName = 'listDB';
 const collectionName = 'itemsCollection';
 
+const getDB = () => {return client.db(dbName)};
+const getCollection = () => {return client.db(dbName).collection(collectionName)};
+
 module.exports = {
     client: client,
-    dbName: dbName,
-    collectionName: collectionName,
+    getDB: getDB,
+    getCollection: getCollection,
 }
