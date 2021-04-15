@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require("../database/index");
 
 const itemSchema = require("../models/itemSchema");
-console.log(itemSchema);
+
 router.get("/all", (req, res) => {
   const cursor = db.getCollection().find({
     $jsonSchema: itemSchema,
@@ -49,9 +49,13 @@ router.post("/update/:id", (req, res) => {
   };
 
   try {
-    db.getCollection().updateOne({ _id: req.params.id }, updatedItem, {
-      upsert: true,
-    });
+    db.getCollection().updateOne(
+      { _id: req.params.id, $jsonSchema: itemSchema },
+      updatedItem,
+      {
+        upsert: true,
+      }
+    );
 
     res.json({ msg: "item updated" });
   } catch (err) {
