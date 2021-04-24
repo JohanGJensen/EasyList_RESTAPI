@@ -17,10 +17,11 @@ router.get("/all", (req, res) => {
 });
 
 router.post("/create", (req, res) => {
+  const uuid = require("../utility/uuid");
+
   const newItem = {
-    _id: req.body._id.toString(),
+    _id: uuid(),
     name: req.body.name,
-    description: req.body.description,
     complete: req.body.complete,
     user: req.body.user,
   };
@@ -28,8 +29,14 @@ router.post("/create", (req, res) => {
   db.getCollection().insertOne(newItem, (err, result) => {
     if (err) throw err;
 
-    res.json({ msg: "item added!", result: result });
+    res.json({ msg: "item added!", result: result.ops });
   });
+});
+
+router.delete("/delete/all", (req, res) => {
+  db.getCollection().deleteMany({});
+
+  res.json({ msg: "all items deleted" });
 });
 
 router.delete("/delete/:id", (req, res) => {
@@ -42,7 +49,6 @@ router.post("/update/:id", (req, res) => {
   const updatedItem = {
     $set: {
       name: req.body.name,
-      description: req.body.description,
       complete: req.body.complete,
       user: req.body.user,
     },
