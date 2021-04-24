@@ -10,7 +10,7 @@ app.use(
   })
 );
 
-const testRoute = require("./routes/test");
+const spacesRoute = require("./routes/spaces");
 const itemsRoute = require("./routes/items");
 
 db.client.connect((err) => {
@@ -18,7 +18,7 @@ db.client.connect((err) => {
 
   console.log("Connected to Database!");
 
-  app.use("/test", testRoute);
+  app.use("/spaces", spacesRoute);
   app.use("/items", itemsRoute);
   // client.close();
 });

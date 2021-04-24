@@ -1,6 +1,6 @@
 const itemSchema = {
   bsonType: "object",
-  required: ["_id", "name", "complete", "user"],
+  required: ["_id", "name", "complete"],
   properties: {
     _id: {
       bsonType: "string",
@@ -14,11 +14,6 @@ const itemSchema = {
       bsonType: "string",
       enum: ["true", "false", "False", "True"],
       description: "complete must be a string and is required",
-    },
-    user: {
-      bsonType: "string",
-      enum: ["All", "Johan", "Laura"],
-      description: "user must be a string and is required",
     },
   },
 };

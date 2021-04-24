@@ -2,94 +2,80 @@ const express = require("express");
 const router = express.Router();
 const db = require("../database/index");
 
-const itemSchema = require("../models/itemSchema");
+const spaceSchema = require("../models/spaceSchema");
 
-router.get("/all", (req, res) => {
-  const cursor = db.getCollection().find({
-    $jsonSchema: itemSchema,
-  });
-
-  cursor.toArray(function (err, result) {
-    if (err) throw err;
-
-    res.json(result);
-  });
-});
-
-router.post("/create", (req, res) => {
+router.post("/create/:spaceid", (req, res) => {
   const uuid = require("../utility/uuid");
 
   const newItem = {
-    _id: uuid(),
-    name: req.body.name,
-    complete: req.body.complete,
-    user: req.body.user,
-  };
-
-  db.getCollection().insertOne(newItem, (err, result) => {
-    if (err) throw err;
-
-    res.json({ msg: "item added!", result: result.ops });
-  });
-});
-
-router.delete("/delete/all", (req, res) => {
-  db.getCollection().deleteMany({});
-
-  res.json({ msg: "all items deleted" });
-});
-
-router.delete("/delete/:id", (req, res) => {
-  db.getCollection().deleteOne({ _id: req.params.id, $jsonSchema: itemSchema });
-
-  res.json({ msg: "item deleted" });
-});
-
-router.post("/update/:id", (req, res) => {
-  const updatedItem = {
-    $set: {
-      name: req.body.name,
-      complete: req.body.complete,
-      user: req.body.user,
-    },
+    _id: `item_${uuid()}`,
+    name: `${req.body.name}`,
+    complete: `${req.body.complete}`,
   };
 
   try {
     db.getCollection().updateOne(
-      { _id: req.params.id, $jsonSchema: itemSchema },
-      updatedItem,
-      {
-        upsert: true,
-      }
+      { _id: req.params.spaceid, $jsonSchema: spaceSchema },
+      { $push: { items: newItem } },
+      { upsert: false }
     );
 
-    res.json({ msg: "item updated" });
+    res.json({ msg: "item added to space!" });
   } catch (err) {
     res.json({ msg: err });
   }
 });
 
-router.get("/match/:user", (req, res) => {
-  const cursor = db
-    .getCollection()
-    .find({ user: req.params.user, $jsonSchema: itemSchema });
+router.delete("/delete/all/:spaceid", (req, res) => {
+  try {
+    db.getCollection().updateOne(
+      { _id: req.params.spaceid, $jsonSchema: spaceSchema },
+      { $set: { items: [] } },
+      { upsert: false }
+    );
 
-  cursor.toArray((err, result) => {
-    if (err) throw err;
-
-    res.json(result);
-  });
+    res.json({ msg: "items deleted from space!" });
+  } catch (err) {
+    res.json({ msg: err });
+  }
 });
 
-router.get("/item/:id", (req, res) => {
-  db.getCollection().findOne(
-    { _id: req.params.id, $jsonSchema: itemSchema },
-    (err, result) => {
-      if (err) throw err;
+router.delete("/delete/:spaceid/:itemid", (req, res) => {
+  try {
+    db.getCollection().updateOne(
+      { _id: req.params.spaceid, $jsonSchema: spaceSchema },
+      { $pull: { items: { _id: req.params.itemid } } },
+      { upsert: false }
+    );
 
-      res.json(result);
-    }
-  );
+    res.json({ msg: "item deleted from space!" });
+  } catch (err) {
+    res.json({ msg: err });
+  }
+});
+
+router.post("/update/:spaceid/:itemid", (req, res) => {
+  const updatedItem = {
+    _id: req.params.itemid,
+    name: req.body.name,
+    complete: req.body.complete,
+  };
+
+  try {
+    db.getCollection().updateOne(
+      {
+        _id: req.params.spaceid,
+        "items._id": req.params.itemid,
+        $jsonSchema: spaceSchema,
+      },
+      { $set: { "items.$": updatedItem } },
+      { upsert: false }
+    );
+
+    res.json({ msg: "item updated from space!" });
+  } catch (err) {
+    res.json({ msg: err });
+  }
 });
 
 module.exports = router;
