@@ -62,13 +62,18 @@ router.post("/update/:spaceid/:itemid", (req, res) => {
   };
 
   try {
-    db.getCollection().updateOne(
+    db.getCollection().findOneAndUpdate(
       {
         _id: req.params.spaceid,
         "items._id": req.params.itemid,
-        $jsonSchema: spaceSchema,
+        // $jsonSchema: spaceSchema,
       },
-      { $set: { "items.$": updatedItem } },
+      {
+        $set: {
+          "items.$.name": req.body.name,
+          "items.$.complete": req.body.complete,
+        },
+      },
       { upsert: false }
     );
 
